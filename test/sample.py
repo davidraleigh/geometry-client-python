@@ -32,7 +32,6 @@ from shapely.geometry import Polygon
 from shapely.geometry import LineString, Point
 from shapely.geometry import MultiPoint
 from shapely.ops import cascaded_union
-import epl.geometry.geometry_operators_pb2 as geometry_operators_pb2
 from epl.geometry.geometry_operators_pb2 import *
 import epl.geometry.geometry_operators_pb2_grpc as geometry_grpc
 import numpy as np
@@ -62,9 +61,11 @@ class TestBasic(unittest.TestCase):
         geometryBagData.geometry_binaries.extend([polygon.wkb])
         geometryBagData.geometry_encoding_type = GeometryEncodingType.Value('wkb')
 
+        buffer_params = BufferParams(distances=[1.2])
+
         opRequest = OperatorRequest(left_geometry_bag=geometryBagData,
                                     operator_type=ServiceOperatorType.Value('Buffer'),
-                                    buffer_distances=[1.2],
+                                    buffer_params=buffer_params,
                                     results_encoding_type=GeometryEncodingType.Value('wkt'))
 
         print("make stub")
@@ -85,6 +86,7 @@ class TestBasic(unittest.TestCase):
         outputSpatialReference = SpatialReferenceData(wkid=4326)
         polyline = LineString([(500000,       0), (400000,  100000), (600000, -100000)])
 
+        a = EnvelopeData(xmin=1, ymin=2, xmax=4, ymax=6)
         serviceGeomPolyline = GeometryBagData(
             geometry_strings=[polyline.wkt],
             geometry_encoding_type=GeometryEncodingType.Value('wkt'),
